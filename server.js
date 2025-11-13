@@ -46,16 +46,16 @@ app.get("/transactions/:id", async (req, res) => {
   res.send(transaction);
 });
 
-// // ---------- Update Transaction ----------
-// app.put("/transactions/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const updatedData = req.body;
-//   updatedData.date = new Date(updatedData.date);
-//   const result = await getDB()
-//     .collection("transactions")
-//     .updateOne({ _id: new ObjectId(id) }, { $set: updatedData });
-//   res.send(result);
-// });
+// Update Transaction
+app.put("/transactions/:id", async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+  updatedData.date = new Date(updatedData.date);
+  const result = await getDB()
+    .collection("transactions")
+    .updateOne({ _id: new ObjectId(id) }, { $set: updatedData });
+  res.send(result);
+});
 
 // // ---------- Delete Transaction ----------
 // app.delete("/transactions/:id", async (req, res) => {
