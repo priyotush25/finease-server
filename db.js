@@ -12,6 +12,13 @@ const client = new MongoClient(uri, {
 
 let db;
 
+async function connectDB() {
+  await client.connect();
+  db = client.db("fineaseDB");
+  console.log("MongoDB connected!");
+  return db;
+}
+
 function getDB() {
   if (!db) throw new Error("Database not connected!");
   return db;
