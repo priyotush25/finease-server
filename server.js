@@ -16,7 +16,6 @@ const PORT = process.env.PORT || 5000;
 connectDB().then(() => console.log("Database ready!"));
 
 // Add Transaction
-
 app.post("/transactions", async (req, res) => {
   const transaction = req.body;
 
@@ -28,15 +27,15 @@ app.post("/transactions", async (req, res) => {
   res.send(result);
 });
 
-// // ---------- Get All Transactions by User ----------
-// app.get("/transactions", async (req, res) => {
-//   const { email } = req.query;
-//   const transactions = await getDB()
-//     .collection("transactions")
-//     .find({ userEmail: email })
-//     .toArray();
-//   res.send(transactions);
-// });
+//  Get All Transactions by User
+app.get("/transactions", async (req, res) => {
+  const { email } = req.query;
+  const transactions = await getDB()
+    .collection("transactions")
+    .find({ userEmail: email })
+    .toArray();
+  res.send(transactions);
+});
 
 // // ---------- Get Single Transaction ----------
 // app.get("/transactions/:id", async (req, res) => {
