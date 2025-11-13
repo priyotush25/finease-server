@@ -1,4 +1,3 @@
-// db.js
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 
@@ -12,13 +11,6 @@ const client = new MongoClient(uri, {
 });
 
 let db;
-
-async function connectDB() {
-  await client.connect();
-  db = client.db("fineaseDB"); // database name
-  console.log("MongoDB connected!");
-  return db;
-}
 
 function getDB() {
   if (!db) throw new Error("Database not connected!");
