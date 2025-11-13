@@ -13,7 +13,8 @@ const client = new MongoClient(uri, {
 let db;
 
 async function connectDB() {
-  await client.connect();
+  // await client.connect();
+
   db = client.db("fineaseDB");
   console.log("MongoDB connected!");
   return db;
