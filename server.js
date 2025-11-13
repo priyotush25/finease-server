@@ -37,14 +37,14 @@ app.get("/transactions", async (req, res) => {
   res.send(transactions);
 });
 
-// // ---------- Get Single Transaction ----------
-// app.get("/transactions/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const transaction = await getDB()
-//     .collection("transactions")
-//     .findOne({ _id: new ObjectId(id) });
-//   res.send(transaction);
-// });
+// Get Single Transaction
+app.get("/transactions/:id", async (req, res) => {
+  const { id } = req.params;
+  const transaction = await getDB()
+    .collection("transactions")
+    .findOne({ _id: new ObjectId(id) });
+  res.send(transaction);
+});
 
 // // ---------- Update Transaction ----------
 // app.put("/transactions/:id", async (req, res) => {
