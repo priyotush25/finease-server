@@ -57,13 +57,13 @@ app.put("/transactions/:id", async (req, res) => {
   res.send(result);
 });
 
-// // ---------- Delete Transaction ----------
-// app.delete("/transactions/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const result = await getDB()
-//     .collection("transactions")
-//     .deleteOne({ _id: new ObjectId(id) });
-//   res.send(result);
-// });
+// Delete Transaction
+app.delete("/transactions/:id", async (req, res) => {
+  const { id } = req.params;
+  const result = await getDB()
+    .collection("transactions")
+    .deleteOne({ _id: new ObjectId(id) });
+  res.send(result);
+});
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
