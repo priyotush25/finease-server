@@ -66,7 +66,7 @@ app.get("/", (req, res) => {
 async function run() {
   try {
     await client.connect();
-    console.log("✅ MongoDB connected");
+    console.log("MongoDB connected");
 
     const db = client.db("financeDB");
     const transactionCollection = db.collection("main-data");
@@ -82,7 +82,7 @@ async function run() {
           return res.status(400).send({ message: "Email required" });
         }
 
-        // 🔐 Ownership check
+        // Ownership check
         if (email !== req.user.email) {
           return res.status(403).send({ message: "Forbidden" });
         }
@@ -126,7 +126,7 @@ async function run() {
       try {
         const data = req.body;
 
-        // 🔐 Force email from token
+        // Force email from token
         data.email = req.user.email;
 
         const result = await transactionCollection.insertOne(data);
@@ -179,7 +179,7 @@ async function run() {
       }
     });
   } catch (error) {
-    console.error("❌ Server error:", error);
+    console.error("Server error:", error);
   }
 }
 
@@ -189,5 +189,5 @@ run();
 // Server Listen
 // ======================
 app.listen(port, () => {
-  console.log(`🚀 Server running http://localhost:${port}`);
+  console.log(`Server running http://localhost:${port}`);
 });
