@@ -60,7 +60,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 // Routes
 // ======================
 app.get("/", (req, res) => {
-  res.send("Hello FinEase 🚀");
+  res.send("Hello FinEase Server");
 });
 
 async function run() {
@@ -189,5 +189,5 @@ run();
 // Server Listen
 // ======================
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+  console.log(`🚀 Server running http://localhost:${port}`);
 });
