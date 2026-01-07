@@ -25,7 +25,7 @@ admin.initializeApp({
 // ======================
 // MongoDB Setup
 // ======================
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ke7g9qv.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ke7g9qv.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -39,20 +39,20 @@ const client = new MongoClient(uri, {
 // Middleware
 // ======================
 const verifyFirebaseToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).send({ message: "Unauthorized access" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decodedUser = await admin.auth().verifyIdToken(token);
-    req.user = decodedUser; // future use
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).send({ message: "Unauthorized" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).send({ message: "Unauthorized access" });
+    return res.status(401).send({ message: "Invalid token" });
   }
 };
 
@@ -65,73 +65,121 @@ app.get("/", (req, res) => {
 
 async function run() {
   try {
-    // await client.connect();
+    await client.connect();
+    console.log("✅ MongoDB connected");
 
     const db = client.db("financeDB");
     const transactionCollection = db.collection("main-data");
 
-    // Get all transactions (by email)
+    // ======================
+    // GET all transactions
+    // ======================
     app.get("/my-transaction", verifyFirebaseToken, async (req, res) => {
-      const { email } = req.query;
+      try {
+        const { email } = req.query;
 
-      if (!email) {
-        return res.status(400).send({ message: "Email is required" });
+        if (!email) {
+          return res.status(400).send({ message: "Email required" });
+        }
+
+        // 🔐 Ownership check
+        if (email !== req.user.email) {
+          return res.status(403).send({ message: "Forbidden" });
+        }
+
+        const result = await transactionCollection
+          .find({ email })
+          .sort({ date: -1 })
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch transactions" });
       }
-
-      const result = await transactionCollection
-        .find({ email })
-        .sort({ amount: -1 })
-        .toArray();
-
-      res.send(result);
     });
 
-    // Get single transaction
+    // ======================
+    // GET single transaction
+    // ======================
     app.get("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
-      const { id } = req.params;
+      try {
+        const { id } = req.params;
 
-      const result = await transactionCollection.findOne({
-        _id: new ObjectId(id),
-      });
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: "Invalid ID" });
+        }
 
-      res.send(result);
+        const result = await transactionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch transaction" });
+      }
     });
 
-    // Create transaction
+    // ======================
+    // CREATE transaction
+    // ======================
     app.post("/my-transaction", verifyFirebaseToken, async (req, res) => {
-      const data = req.body;
+      try {
+        const data = req.body;
 
-      const result = await transactionCollection.insertOne(data);
-      res.send(result);
+        // 🔐 Force email from token
+        data.email = req.user.email;
+
+        const result = await transactionCollection.insertOne(data);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to create transaction" });
+      }
     });
 
-    // Update transaction
+    // ======================
+    // UPDATE transaction
+    // ======================
     app.put("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
-      const { id } = req.params;
-      const updatedData = req.body;
+      try {
+        const { id } = req.params;
 
-      const result = await transactionCollection.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: updatedData }
-      );
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: "Invalid ID" });
+        }
 
-      res.send(result);
+        const result = await transactionCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: req.body }
+        );
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to update transaction" });
+      }
     });
 
-    // Delete transaction
+    // ======================
+    // DELETE transaction
+    // ======================
     app.delete("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
-      const { id } = req.params;
+      try {
+        const { id } = req.params;
 
-      const result = await transactionCollection.deleteOne({
-        _id: new ObjectId(id),
-      });
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).send({ message: "Invalid ID" });
+        }
 
-      res.send(result);
+        const result = await transactionCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to delete transaction" });
+      }
     });
-
-    console.log("✅ MongoDB connected successfully");
   } catch (error) {
-    console.error(error);
+    console.error("❌ Server error:", error);
   }
 }
 
