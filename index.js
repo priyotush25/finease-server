@@ -9,9 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ======================
+
 // Firebase Admin (Base64 decode)
-// ======================
+
 const serviceAccountJSON = Buffer.from(
   process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
   "base64"
@@ -21,9 +21,8 @@ admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(serviceAccountJSON)),
 });
 
-// ======================
+
 // MongoDB Setup
-// ======================
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ke7g9qv.mongodb.net/?retryWrites=true&w=majority`;
 
 let cachedClient = null;
@@ -48,9 +47,8 @@ async function connectToMongo() {
   return { client, db };
 }
 
-// ======================
+
 // Middleware: Firebase Token Verify
-// ======================
 const verifyFirebaseToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -65,9 +63,8 @@ const verifyFirebaseToken = async (req, res, next) => {
   }
 };
 
-// ======================
+
 // Routes
-// ======================
 app.get("/", (req, res) => {
   res.send("Hello FinEase Server");
 });
@@ -85,9 +82,8 @@ app.use(async (req, res, next) => {
   }
 });
 
-// ======================
+
 // GET all transactions
-// ======================
 app.get("/my-transaction", verifyFirebaseToken, async (req, res) => {
   try {
     const { email } = req.query;
@@ -106,9 +102,8 @@ app.get("/my-transaction", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// ======================
+
 // GET single transaction
-// ======================
 app.get("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -122,9 +117,8 @@ app.get("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// ======================
+
 // CREATE transaction
-// ======================
 app.post("/my-transaction", verifyFirebaseToken, async (req, res) => {
   try {
     const data = req.body;
@@ -138,9 +132,8 @@ app.post("/my-transaction", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// ======================
+
 // UPDATE transaction
-// ======================
 app.put("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -158,9 +151,8 @@ app.put("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// ======================
+
 // DELETE transaction
-// ======================
 app.delete("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -174,7 +166,6 @@ app.delete("/my-transaction/:id", verifyFirebaseToken, async (req, res) => {
   }
 });
 
-// ======================
+
 // Vercel Serverless Export
-// ======================
 module.exports = app;
