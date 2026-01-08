@@ -15,16 +15,21 @@ app.use(express.json());
 
 
 // Firebase Admin Setup
-const decoded = JSON.parse(
-  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8")
-);
+try {
+  const serviceAccount = JSON.parse(
+    fs.readFileSync("./firebase-admin.json", "utf8")
+  );
 
-admin.initializeApp({
-  credential: admin.credential.cert(decoded),
-});
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 
-console.log("Firebase Admin initialized");
-
+  console.log("✅ Firebase Admin initialized (local)!");
+} catch (err) {
+  console.error("❌ Firebase Admin init failed:");
+  console.error(err.message);
+  process.exit(1);
+}
 
 
 
@@ -160,3 +165,10 @@ run();
 
 // Vercel expects this:
 module.exports = app;
+
+
+
+
+  // app.listen(port, ()=>{
+  //   console.log(`Server Running at http://localhost:${port}`);
+  // })
