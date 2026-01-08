@@ -15,20 +15,12 @@ app.use(express.json());
 
 
 // Firebase Admin Setup
-let serviceAccount;
-
-try {
-  serviceAccount = JSON.parse(
-    fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT_PATH, "utf8")
-  );
-} catch (error) {
-  console.error("❌ Firebase Admin init failed:");
-  console.error(error.message);
-  process.exit(1);
-}
+const decoded = JSON.parse(
+  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8")
+);
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(decoded),
 });
 
 console.log("Firebase Admin initialized");
