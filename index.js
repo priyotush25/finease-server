@@ -166,7 +166,5 @@ async function run() {
 run();
 
 
-// Server Listen
-app.listen(port, () => {
-  console.log(`Server Running at http://localhost:${port}`);
-});
+// Vercel expects this:
+module.exports = app;
